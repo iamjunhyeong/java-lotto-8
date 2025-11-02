@@ -1,14 +1,17 @@
 package lotto.domain;
 
+import lotto.exception.ErrorMessage;
+import lotto.exception.InvalidInputException;
+
 import java.util.*;
 
 import static java.util.Collections.sort;
 
 public class Lotto {
 
-    private static final int LOTTO_SIZE = 6;
-    private static final int MIN_NUMBER = 1;
-    private static final int MAX_NUMBER = 45;
+    private final static int LOTTO_SIZE = 6;
+    private final static int MIN_NUMBER = 1;
+    private final static int MAX_NUMBER = 45;
 
     private final List<Integer> numbers;
 
@@ -21,17 +24,17 @@ public class Lotto {
 
     private void validate(List<Integer> numbers) {
         if (numbers.size() != 6) {
-            throw new IllegalArgumentException("[ERROR] 로또 번호는 6개여야 합니다.");
+            throw new InvalidInputException(ErrorMessage.INVALID_LOTTO_NUMBER_COUNT.getMessage());
         }
 
         Set<Integer> uniqueNumbers = new HashSet<>(numbers);
         if (uniqueNumbers.size() != LOTTO_SIZE) {
-            throw new IllegalArgumentException("로또 번호에 중복된 숫자가 있습니다.");
+            throw new InvalidInputException(ErrorMessage.DUPLICATE_LOTTO_NUMBERS.getMessage());
         }
 
         for (int number : numbers) {
             if (number < MIN_NUMBER || number > MAX_NUMBER) {
-                throw new IllegalArgumentException("로또 번호는 1~45 범위여야 합니다.");
+                throw new InvalidInputException(ErrorMessage.INVALID_LOTTO_NUMBER_RANGE.getMessage());
             }
         }
     }

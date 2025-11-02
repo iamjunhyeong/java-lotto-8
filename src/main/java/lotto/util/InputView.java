@@ -10,17 +10,20 @@ import java.util.List;
 
 public class InputView {
 
+    private final static String INPUT_AMOUNT = "구입금액을 입력해 주세요.";
+    private final static String INPUT_WINNING_NUMBERS = "당첨 번호를 입력해 주세요.";
+    private final static String INPUT_BONUS_NUMBER = "보너스 번호를 입력해 주세요.";
+
     /** 구입 금액 입력 */
     public int inputMoney() {
-        System.out.println("구입금액을 입력해 주세요.");
+        System.out.println(INPUT_AMOUNT);
         String input = Console.readLine();
-        validateMoney(input);
-        return Integer.parseInt(input);
+        return validateMoney(input);
     }
 
     /** 당첨 번호 입력 */
     public Lotto inputWinningNumbers() {
-        System.out.println("당첨 번호를 입력해 주세요.");
+        System.out.println(INPUT_WINNING_NUMBERS);
         String input = Console.readLine();
         String[] parts = input.split(",");
 
@@ -39,7 +42,8 @@ public class InputView {
 
     /** 보너스 번호 입력 */
     public int inputBonusNumber(Lotto winningLotto) {
-        System.out.println("보너스 번호를 입력해 주세요.");
+        System.out.println();
+        System.out.println(INPUT_BONUS_NUMBER);
         String input = Console.readLine();
         int bonusNumber = parseToInt(input);
 
@@ -55,19 +59,21 @@ public class InputView {
     }
 
     /** 구입 금액 검증 */
-    private void validateMoney(String money) {
+    private int validateMoney(String money) {
         int amount = parseToInt(money);
         if (amount <= 0 || amount % 1000 != 0) {
             throw new InvalidInputException(ErrorMessage.INVALID_PURCHASE_AMOUNT.getMessage());
         }
+        return amount;
     }
 
     /** 문자열 → 정수 변환 + 예외 처리 */
     private int parseToInt(String input) {
-        try {
-            return Integer.parseInt(input);
-        } catch (NumberFormatException e) {
-            throw new InvalidInputException(ErrorMessage.INVALID_INTEGER_INPUT.getMessage());
+        for (char c : input.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                throw new InvalidInputException(ErrorMessage.INVALID_INTEGER_INPUT.getMessage());
+            }
         }
+        return Integer.parseInt(input);
     }
 }

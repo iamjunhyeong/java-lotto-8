@@ -5,15 +5,18 @@ import lotto.domain.LottoGenerator;
 import lotto.domain.LottoResult;
 import lotto.domain.Rank;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LottoService {
 
     public List<Lotto> buyLottos(int money) {
         int ticketCount = money / 1000;
-        return java.util.stream.IntStream.range(0, ticketCount)
-                .mapToObj(i -> LottoGenerator.generateLotto())
-                .toList();
+        List<Lotto> lottos = new ArrayList<>();
+        for (int i = 0; i < ticketCount; i++) {
+            lottos.add(LottoGenerator.generateLotto());
+        }
+        return lottos;
     }
 
     public LottoResult checkResult(List<Lotto> tickets, Lotto winningLotto, int bonus) {
