@@ -23,6 +23,10 @@ public class Lotto {
     }
 
     private void validate(List<Integer> numbers) {
+        if (numbers == null) {
+            throw new InvalidInputException(ErrorMessage.NULL_INPUT.getMessage());
+        }
+
         if (numbers.size() != 6) {
             throw new InvalidInputException(ErrorMessage.INVALID_LOTTO_NUMBER_COUNT.getMessage());
         }

@@ -1,41 +1,73 @@
 package lotto.domain;
 
+import lotto.exception.InvalidInputException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 class LottoTest {
 
     @Test
-    @DisplayName("로또 번호가 6개가 아닐 경우 예외 발생")
-    void shouldThrowExceptionWhenNumbersSizeIsNot6() {
-        List<Integer> invalidNumbers = Arrays.asList(1, 2, 3, 4, 5);
-        assertThrows(IllegalArgumentException.class, () -> new Lotto(invalidNumbers));
+    @DisplayName("로또 번호가 6개가 아니면 예외 발생")
+    void shouldThrowExceptionWhenNotSixNumbers() {
+        assertThatThrownBy(() -> new Lotto(List.of(1, 2, 3, 4, 5)))
+                .isInstanceOf(InvalidInputException.class)
+                .hasMessageContaining("로또 번호는 6개여야");
     }
 
     @Test
-    @DisplayName("중복된 숫자가 있을 경우 예외 발생")
-    void shouldThrowExceptionWhenNumbersDuplicate() {
-        List<Integer> invalidNumbers = Arrays.asList(1, 2, 3, 3, 4, 5);
-        assertThrows(IllegalArgumentException.class, () -> new Lotto(invalidNumbers));
+    @DisplayName("로또 번호에 중복이 있으면 예외 발생")
+    void shouldThrowExceptionWhenDuplicateNumbers() {
+        assertThatThrownBy(() -> new Lotto(List.of(1, 2, 3, 3, 4, 5)))
+                .isInstanceOf(InvalidInputException.class)
+                .hasMessageContaining("중복");
     }
 
     @Test
-    @DisplayName("1~45 범위 밖의 숫자가 있으면 예외 발생")
-    void shouldThrowExceptionWhenOutOfRange() {
-        List<Integer> invalidNumbers = Arrays.asList(0, 2, 3, 4, 5, 6);
-        assertThrows(IllegalArgumentException.class, () -> new Lotto(invalidNumbers));
+    @DisplayName("로또 번호가 1~45 범위를 벗어나면 예외 발생")
+    void shouldThrowExceptionWhenNumberOutOfRange() {
+        assertThatThrownBy(() -> new Lotto(List.of(0, 2, 3, 4, 5, 6)))
+                .isInstanceOf(InvalidInputException.class)
+                .hasMessageContaining("1부터 45");
+        assertThatThrownBy(() -> new Lotto(List.of(1, 2, 3, 4, 5, 100)))
+                .isInstanceOf(InvalidInputException.class)
+                .hasMessageContaining("1부터 45");
     }
 
     @Test
-    @DisplayName("로또 생성 시 자동 오름차순 정렬 확인")
-    void shouldSortNumbersAscending() {
-        Lotto lotto = new Lotto(Arrays.asList(45, 1, 9, 3, 10, 7));
-        List<Integer> expected = Arrays.asList(1, 3, 7, 9, 10, 45);
-        assertEquals(expected, lotto.getNumbers());
+    @DisplayName("정상적인 로또 번호는 정렬되어 저장된다")
+    void shouldStoreSortedNumbers() {
+        Lotto lotto = new Lotto(List.of(6, 1, 45, 20, 9, 3));
+        assertThat(lotto.getNumbers()).containsExactly(1, 3, 6, 9, 20, 45);
+    }
+
+    @Test
+    @DisplayName("보너스 번호 포함 여부 확인")
+    void shouldCheckContainsNumber() {
+        Lotto lotto = new Lotto(List.of(1, 2, 3, 4, 5, 6));
+        assertThat(lotto.containsNumber(3)).isTrue();
+        assertThat(lotto.containsNumber(10)).isFalse();
+    }
+
+    @Test
+    @DisplayName("두 로또 간 일치 번호 개수 계산")
+    void shouldCountMatchingNumbersCorrectly() {
+        Lotto myLotto = new Lotto(List.of(1, 2, 3, 4, 5, 6));
+        Lotto winningLotto = new Lotto(List.of(4, 5, 6, 7, 8, 9));
+
+        int matchCount = myLotto.countMatchingNumbers(winningLotto);
+
+        assertThat(matchCount).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("로또 번호는 외부에서 수정할 수 없다")
+    void shouldBeImmutable() {
+        Lotto lotto = new Lotto(List.of(1, 2, 3, 4, 5, 6));
+        assertThatThrownBy(() -> lotto.getNumbers().add(7))
+                .isInstanceOf(UnsupportedOperationException.class);
     }
 }
